@@ -4,10 +4,12 @@ public class FuncionarioVo {
 	private String rowid;
 	private String nome;	
 	
-	public FuncionarioVo() {}
+	public FuncionarioVo() {
+		// Construtor sem argumentos exigido pelo Struts, que instancia o Vo e preenche os campos pelos setters.
+	}
 		
 	public FuncionarioVo(String rowid, String nome) {
-		this.rowid = rowid;
+		this.rowid = normalizarCodigo(rowid);
 		this.nome = nome;
 	}
 
@@ -15,13 +17,17 @@ public class FuncionarioVo {
 		return rowid;
 	}
 	public void setRowid(String rowid) {
-		this.rowid = rowid;
+		this.rowid = normalizarCodigo(rowid);
 	}
 	public String getNome() {
 		return nome;
 	}
 	public void setNome(String nome) {
 		this.nome = nome;
+	}
+
+	private static String normalizarCodigo(String codigo) {
+		return (codigo == null || codigo.trim().isEmpty()) ? null : codigo;
 	}
 	
 	@Override

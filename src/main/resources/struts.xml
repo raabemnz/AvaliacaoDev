@@ -11,11 +11,38 @@
 	<constant name="struts.custom.i18n.resources" value="ApplicationResources" />
 	<constant name="struts.action.excludePattern" value="/webjars/.*,/h2-console/*" />
 	
-    <package name="br.com.soc.sistema" extends="struts-default" strict-method-invocation="false">
+    <package name="br.com.soc.sistema" extends="struts-default" strict-method-invocation="true">
         <action name="*Funcionarios" class="br.com.soc.sistema.action.FuncionarioAction" method="{1}">
         	<result name="success">/funcionario/cadFuncionario_b.jsp</result>
             <result name="input">/funcionario/cadFuncionario_i.jsp</result>
         	<result name="redirect" type="redirectAction">todosFuncionarios</result>
+        	<allowed-methods>todos,filtrar,novo,editar,salvarAlteracao,excluir</allowed-methods>
+        </action>
+        
+        <action name="*Agendas" class="br.com.soc.sistema.action.AgendaAction" method="{1}">
+        	<result name="success">/agenda/cadAgenda_b.jsp</result>
+            <result name="input">/agenda/cadAgenda_i.jsp</result>
+        	<result name="redirect" type="redirectAction">todosAgendas</result>
+        	<allowed-methods>todos,filtrar,novo,editar,salvarAlteracao,excluir</allowed-methods>
+        </action>
+        
+        <action name="*Compromissos" class="br.com.soc.sistema.action.CompromissoAction" method="{1}">
+        	<result name="success">/compromisso/cadCompromisso_b.jsp</result>
+            <result name="input">/compromisso/cadCompromisso_i.jsp</result>
+        	<result name="redirect" type="redirectAction">todosCompromissos</result>
+        	<allowed-methods>todos,filtrar,novo,editar,salvarAlteracao,excluir</allowed-methods>
+        </action>
+        
+        <action name="*Relatorios" class="br.com.soc.sistema.action.RelatorioAction" method="{1}">
+        	<result name="success">/relatorio/relatorioCompromissos.jsp</result>
+        	<result name="html">/relatorio/relatorioCompromissosHtml.jsp</result>
+        	<result name="excel" type="stream">
+        		<param name="contentType">application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</param>
+        		<param name="inputName">arquivoExcel</param>
+        		<param name="contentDisposition">attachment; filename="${nomeArquivo}"</param>
+        		<param name="bufferSize">4096</param>
+        	</result>
+        	<allowed-methods>compromissos,visualizarCompromissos,exportarCompromissos</allowed-methods>
         </action>
     </package>
 

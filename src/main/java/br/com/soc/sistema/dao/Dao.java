@@ -10,9 +10,8 @@ public abstract class Dao implements AutoCloseable{
 
 	private static boolean primeiraInicializacao = true;
 	private Connection con = null;
-	
-	public Dao() {
-		conectar();
+
+	protected Dao() {
 	}
 	
 	private void conectar() {
@@ -37,11 +36,9 @@ public abstract class Dao implements AutoCloseable{
 	}	
 	
 	private void fechar() throws SQLException {
-		if(con == null)
-			throw new TechnicalException("Conexao nao foi criada");
-		
-		if(con.isClosed())
-			throw new TechnicalException("Conexao ja foi encerrada");
+		// nenhuma conexao aberta: nada a fechar
+		if(con == null || con.isClosed())
+			return;
 		
 		con.close();
 	}

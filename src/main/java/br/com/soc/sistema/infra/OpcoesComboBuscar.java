@@ -13,7 +13,7 @@ public enum OpcoesComboBuscar {
 	
 	private String codigo;
 	private String descricao;
-	private final static Map<String, OpcoesComboBuscar> opcoes = new HashMap<>();
+	private static final Map<String, OpcoesComboBuscar> opcoes = new HashMap<>();
 	
 	static {
 		Arrays.asList(OpcoesComboBuscar.values())
@@ -31,10 +31,8 @@ public enum OpcoesComboBuscar {
 		if(codigo == null)
 			throw new IllegalArgumentException("informe um codigo valido");
 		
-		OpcoesComboBuscar opcao = getOpcao(codigo)
+		return getOpcao(codigo)
 				.orElseThrow(() -> new BusinessException("Codigo informado nao existe"));
-		
-		return opcao;
 	}
 	
 	private static Optional<OpcoesComboBuscar> getOpcao(String codigo){

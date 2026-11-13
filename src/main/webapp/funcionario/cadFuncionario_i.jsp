@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"  pageEncoding="UTF8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html>
 <html>
@@ -10,30 +10,45 @@
 	<body class="bg-secondary">
 
 		<div class="container">
-			<s:form action="/novoFuncionarios.action">
+			<s:form action="%{funcionarioVo.rowid == null ? 'novoFuncionarios' : 'salvarAlteracaoFuncionarios'}">
 
 				<div class="card mt-5">
 					<div class="card-header">
 						<div class="row">
 							<div class="col-sm-5">
 								<s:url action="todosFuncionarios" var="todos"/>
-								<a href="${todos}" class="btn btn-success" >Funcionários</a>
+								<a href="${todos}" class="btn btn-primary" >Funcionários</a>
 							</div>
 							
 							<div class="col-sm">
-								<h5 class="card-title">Novo Funcionário</h5>
+								<h5 class="card-title">
+									<s:if test="funcionarioVo.rowid == null">
+										<s:text name="label.titulo.novo"/>
+									</s:if>
+									<s:else>
+										<s:text name="label.titulo.editar"/>
+									</s:else>
+								</h5>
 							</div>
 						</div>
 					</div>
 					
 					<div class="card-body">
+						<s:if test="hasActionErrors()">
+							<div class="alert alert-danger" role="alert">
+								<s:iterator value="actionErrors">
+									<div><s:property/></div>
+								</s:iterator>
+							</div>
+						</s:if>
+						
 						<div class="row align-items-center">
 							<label for="id" class="col-sm-1 col-form-label text-center">
 								Código:
 							</label>	
 
 							<div class="col-sm-2">
-								<s:textfield cssClass="form-control" id="id" name="funcionarioVo.rowid" readonly="true"/>							
+								<s:textfield cssClass="form-control" id="id" name="funcionarioVo.rowid" readonly="true" tabindex="-1" cssStyle="pointer-events: none;"/>							
 							</div>	
 						</div>
 						
@@ -43,7 +58,7 @@
 							</label>	
 
 							<div class="col-sm-5">
-								<s:textfield cssClass="form-control" id="nome" name="funcionarioVo.nome"/>							
+								<s:textfield cssClass="form-control" id="nome" name="funcionarioVo.nome" maxlength="%{tamanhoMaximoNome}"/>							
 							</div>	
 						</div>
 					</div>

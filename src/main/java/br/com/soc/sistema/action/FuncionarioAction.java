@@ -5,16 +5,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import br.com.soc.sistema.business.FuncionarioBusiness;
-import br.com.soc.sistema.filter.FuncionarioFilter;
+import br.com.soc.sistema.exception.BusinessException;
+import br.com.soc.sistema.filter.BuscaFilter;
 import br.com.soc.sistema.infra.Action;
 import br.com.soc.sistema.infra.OpcoesComboBuscar;
 import br.com.soc.sistema.vo.FuncionarioVo;
 
+import static br.com.soc.sistema.infra.Mensagens.SELECIONE_O_TIPO_DE_BUSCA;
+
 public class FuncionarioAction extends Action {
+	
 	
 	private List<FuncionarioVo> funcionarios = new ArrayList<>();
 	private FuncionarioBusiness business = new FuncionarioBusiness();
-	private FuncionarioFilter filtrar = new FuncionarioFilter();
+	private BuscaFilter filtrar = new BuscaFilter();
 	private FuncionarioVo funcionarioVo = new FuncionarioVo();
 	
 	public String todos() {
@@ -25,18 +29,30 @@ public class FuncionarioAction extends Action {
 	
 	public String filtrar() {
 		if(filtrar.isNullOpcoesCombo())
-			return REDIRECT;
+			return voltarParaListagem(SELECIONE_O_TIPO_DE_BUSCA);
 		
-		funcionarios = business.filtrarFuncionarios(filtrar);
+		try {
+			funcionarios = business.filtrarFuncionarios(filtrar);
+			
+			if(funcionarios.isEmpty())
+				addActionError(FuncionarioBusiness.FUNCIONARIO_NAO_ENCONTRADO);
+		}catch (BusinessException e) {
+			addActionError(e.getMessage());
+		}
 		
 		return SUCCESS;
 	}
 	
 	public String novo() {
-		if(funcionarioVo.getNome() == null)
+		if(!isSubmissao())
 			return INPUT;
 		
-		business.salvarFuncionario(funcionarioVo);
+		try {
+			business.salvarFuncionario(funcionarioVo);
+		}catch (BusinessException e) {
+			addActionError(e.getMessage());
+			return INPUT;
+		}
 		
 		return REDIRECT;
 	}
@@ -45,10 +61,59 @@ public class FuncionarioAction extends Action {
 		if(funcionarioVo.getRowid() == null)
 			return REDIRECT;
 		
-		funcionarioVo = business.buscarFuncionarioPor(funcionarioVo.getRowid());
+		FuncionarioVo encontrado;
+		
+		try {
+			encontrado = business.buscarFuncionarioPor(funcionarioVo.getRowid());
+		}catch (BusinessException e) {
+			return voltarParaListagem(e.getMessage());
+		}
+		
+		if(encontrado == null)
+			return voltarParaListagem(FuncionarioBusiness.FUNCIONARIO_NAO_ENCONTRADO);
+		
+		funcionarioVo = encontrado;
 		
 		return INPUT;
 	}
+	
+	public String salvarAlteracao() {
+	    if(funcionarioVo.getRowid() == null)
+	        return REDIRECT;
+
+	    try {
+	        business.alterarFuncionario(funcionarioVo);
+	    }catch (BusinessException e) {
+	        addActionError(e.getMessage());
+	        return INPUT;
+	    }
+
+	    return REDIRECT;
+	}
+	
+	public String excluir() {
+		if(!isSubmissao())
+			return REDIRECT;
+		
+	    if(funcionarioVo.getRowid() == null)
+	        return REDIRECT;
+
+	    try {
+	        business.excluirFuncionario(funcionarioVo.getRowid());
+	    }catch (BusinessException e) {
+	        return voltarParaListagem(e.getMessage());
+	    }
+
+	    return REDIRECT;
+	}
+
+	private String voltarParaListagem(String mensagem) {
+		addActionError(mensagem);
+		funcionarios.addAll(business.trazerTodosOsFuncionarios());
+		
+		return SUCCESS;
+	}
+
 	
 	public List<OpcoesComboBuscar> getListaOpcoesCombo(){
 		return Arrays.asList(OpcoesComboBuscar.values());
@@ -62,11 +127,11 @@ public class FuncionarioAction extends Action {
 		this.funcionarios = funcionarios;
 	}
 
-	public FuncionarioFilter getFiltrar() {
+	public BuscaFilter getFiltrar() {
 		return filtrar;
 	}
 
-	public void setFiltrar(FuncionarioFilter filtrar) {
+	public void setFiltrar(BuscaFilter filtrar) {
 		this.filtrar = filtrar;
 	}
 

@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"  pageEncoding="UTF8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html>
 <html>
@@ -35,6 +35,14 @@
 			</div>
 
 			<div class="row">
+				<s:if test="hasActionErrors()">
+					<div class="alert alert-danger" role="alert">
+						<s:iterator value="actionErrors">
+							<div><s:property/></div>
+						</s:iterator>
+					</div>
+				</s:if>
+				
 				<table class="table table-light table-striped align-middle">
 					<thead>
 						<tr>
@@ -47,9 +55,9 @@
 					<tbody>
 						<s:iterator value="funcionarios" >
 							<tr>
-								<td>${rowid}</td>
-								<td>${nome}</td>
-								<td class="text-end">
+								<td><s:property value="rowid"/></td>
+								<td class="text-break"><s:property value="nome"/></td>
+								<td class="text-end text-nowrap">
 									<s:url action="editarFuncionarios" var="editar">
 										<s:param name="funcionarioVo.rowid" value="rowid"></s:param>
 									</s:url>
@@ -58,7 +66,7 @@
 										<s:text name="label.editar"/>
 									</a>
 
-									<a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarExclusao">
+									<a href="#" class="btn btn-danger" data-id="<s:property value="rowid"/>" data-bs-toggle="modal" data-bs-target="#confirmarExclusao">
 										<s:text name="label.excluir"/>
 									</a>
 								</td>
@@ -71,8 +79,26 @@
 							<td colspan="3">
 								<s:url action="novoFuncionarios" var="novo"/>
 								
-								<a href="${novo}" class="btn btn-success">
+								<a href="${novo}" class="btn btn-primary">
 									<s:text name="label.novo"/>
+								</a>
+								
+								<s:url action="todosAgendas" var="agendas"/>
+								
+								<a href="${agendas}" class="btn btn-primary ms-2">
+									<s:text name="label.agendas"/>
+								</a>
+								
+								<s:url action="todosCompromissos" var="compromissos"/>
+								
+								<a href="${compromissos}" class="btn btn-primary ms-2">
+									<s:text name="label.compromissos"/>
+								</a>
+								
+								<s:url action="compromissosRelatorios" var="relatorio"/>
+								
+								<a href="${relatorio}" class="btn btn-primary ms-2">
+									<s:text name="label.relatorio"/>
 								</a>
 							</td>
 						</tr>
@@ -105,14 +131,31 @@
 					<s:text name="label.nao"/>
 				</a>
 	        	
-				<s:a id="excluir" class="btn btn-primary" style="width: 75px;">
+				<a id="excluir" href="#" class="btn btn-primary" style="width: 75px;">
 					<s:text name="label.sim"/>
-				</s:a>						
+				</a>						
 		      </div>
 		    </div>		    
 		  </div>
 		</div>
 		
+		<%-- Exclusao por POST: o botao "Sim" do modal envia este formulario --%>
+		<form id="formExclusao" method="post" action="excluirFuncionarios.action" class="d-none">
+			<input type="hidden" name="funcionarioVo.rowid" id="rowidExclusao"/>
+		</form>
+		
 		<script src="webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+		<script>
+		  document.getElementById('excluir').addEventListener('click', function (event) {
+		    event.preventDefault();
+		    document.getElementById('formExclusao').submit();
+		  });
+		  
+		  document.getElementById('confirmarExclusao').addEventListener('show.bs.modal', function (event) {
+		    var id = event.relatedTarget.getAttribute('data-id');
+		    document.getElementById('rowidExclusao').value = id;
+
+		  });				
+		</script>
 	</body>
 </html>
